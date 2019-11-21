@@ -1,5 +1,5 @@
 <?php
 
 $routes = [
-    'url' => 'Controller'
+    'mon_test' => 'Controller/methode_test'
 ];

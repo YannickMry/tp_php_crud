@@ -2,36 +2,53 @@
 
 require('config.php');
 require('routes.php');
+require('helpers.php');
 
-$uri_segments = explode('/', $_SERVER['REQUEST_URI']);
-$uri_segments = array_slice($uri_segments, 1);
+$uri = substr($_SERVER['REQUEST_URI'], 1); // Enlève le premier "/"
 
-if(!isset($uri_segments[0]) || $uri_segments[0] == '') {
+// 3 cas :
+// L'url est renseigné dans routes.php -> on utilise routes.php
+// L'url n'est pas renseigné -> on essaye de trouver directement "controller/method" avec l'url
+// L'url n'est pas renseigné et aucun "controller/method" n'existe -> on redirige vers le controleur par défaut
 
-    $instance = $config['default_controller'];
+if(!isset($route[$uri])) {
 
-} elseif(isset($routes[$uri_segments[0]])) {
+    $uri_segments = explode('/', $uri);
 
-    $instance = $routes[$uri_segments[0]];
+    if(!isset($uri_segments[0]) || $uri_segments[0] == '') {
+        $instance = ucfirst($config['default_controller']);
+    } elseif(isset($uri_segments[0])) {
+        $instance = ucfirst($uri_segments[0]);
+    }
+    
+    if(!isset($uri_segments[1]) || $uri_segments[1] == '') {
+        $method = 'index';
+    } elseif(isset($uri_segments[1])) {
+        $method = $uri_segments[1];
+    }
 
 } else {
-    header('Location: '.$config['base_url']);
+    $uri_segments = explode('/', $routes[$uri]);
+    $instance = ucfirst($uri_segments[0]);
+    $method = $uri_segments[1];
 }
 
-if(!isset($uri_segments[1]) || $uri_segments[1] == '') {
+var_dump($instance);
+var_dump($method);
 
-    $method = 'index';
+$path = './Controller/'.$instance.'.php';
 
-} elseif(isset($routes[$uri_segments[1]])) {
-
-    $method = $routes[$uri_segments[1]];
-
-} else {
-    header('Location: '.$config['base_url']);
+if (!file_exists($path)) {
+    redirect();
 }
 
-require('./Controller/'.$instance.'.php');
+require($path);
 $instance = '\App\Controller\\' . $instance;
 
 $controller = new $instance();
+
+if(!method_exists($instance, $method)) {
+    redirect();
+}
+
 $controller->$method();
