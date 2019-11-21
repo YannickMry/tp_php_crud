@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Structure;
+namespace App\Model;
 
 abstract class Structure {
 
@@ -9,11 +9,12 @@ abstract class Structure {
     private $cp;
     private $ville;
 
-    public function __construct(string $nom, string $rue, string $cp)
+    public function __construct(string $nom, string $rue, string $cp, string $ville)
     {
         $this->nom = $nom;
         $this->rue = $rue;
         $this->cp = $cp;
+        $this->ville = $ville;
     }
 
     /**
@@ -95,5 +96,5 @@ abstract class Structure {
 
         return $this;
     }
-    
+
 }
