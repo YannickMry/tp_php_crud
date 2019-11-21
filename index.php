@@ -11,7 +11,7 @@ $uri = substr($_SERVER['REQUEST_URI'], 1); // Enlève le premier "/"
 // L'url n'est pas renseigné -> on essaye de trouver directement "controller/method" avec l'url
 // L'url n'est pas renseigné et aucun "controller/method" n'existe -> on redirige vers le controleur par défaut
 
-if(!isset($route[$uri])) {
+if(!isset($routes[$uri])) {
 
     $uri_segments = explode('/', $uri);
 
@@ -32,9 +32,6 @@ if(!isset($route[$uri])) {
     $instance = ucfirst($uri_segments[0]);
     $method = $uri_segments[1];
 }
-
-var_dump($instance);
-var_dump($method);
 
 $path = './Controller/'.$instance.'.php';
 

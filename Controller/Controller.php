@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-require('./Model/Secteur.php');
-require('./Model/Structure.php');
+require(app_path('/Model/Secteur.php'));
+require(app_path('/Model/Structure.php'));
  
 use App\Model\Secteur;
 use App\Model\Structure;
@@ -15,6 +15,11 @@ class Controller {
     }
 
     public function index() {
-        echo 'hello';
+        load_view('header');
+        load_view('form');
+        load_view('footer');
+    }
+    public function test() {
+        echo 'test';
     }
 }
