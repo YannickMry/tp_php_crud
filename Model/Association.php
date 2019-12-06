@@ -2,7 +2,8 @@
 
 namespace App\Model;
 
-require_once('./Model/Structure.php');
+require_once(app_path('/Model/Structure.php'));
+
 use App\Model\Structure;
 
 class Association extends Structure {
@@ -10,8 +11,8 @@ class Association extends Structure {
     private $NB_DONATIONS;
     private $EST_ASSO;
 
-    public function __construct($nom, $rue, $cp, $ville, $NB_DONATIONS) {
-        parent::__construct($nom, $rue, $cp, $ville);
+    public function __construct($ID, $nom, $rue, $cp, $ville, $NB_DONATIONS) {
+        parent::__construct($ID, $nom, $rue, $cp, $ville);
         $this->NB_DONATIONS = $NB_DONATIONS;
         $this->EST_ASSO = true;
     }

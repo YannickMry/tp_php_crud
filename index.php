@@ -3,6 +3,7 @@
 require('config.php');
 require('routes.php');
 require('helpers.php');
+require('strings.php');
 
 $uri = substr($_SERVER['REQUEST_URI'], 1); // Enlève le premier "/"
 

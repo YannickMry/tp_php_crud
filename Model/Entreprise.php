@@ -8,13 +8,12 @@ use App\Model\Structure;
 class Entreprise extends Structure {
 
     private $NB_ACTIONNAIRES;
-    private $EST_ASSO;
+    private $ESTASSO;
 
-
-    public function __construct($nom, $rue, $cp, $ville, $NB_ACTIONNAIRES) {
-        parent::__construct($nom, $rue, $cp, $ville);
+    public function __construct($ID, $nom, $rue, $cp, $ville, $NB_ACTIONNAIRES) {
+        parent::__construct($ID, $nom, $rue, $cp, $ville);
         $this->$NB_ACTIONNAIRES = $NB_ACTIONNAIRES;
-        $this->EST_ASSO = false;
+        $this->ESTASSO = false;
     }
 
     public function get_NB_ACTIONNAIRES() {
@@ -26,21 +25,21 @@ class Entreprise extends Structure {
     }
 
     /**
-     * Get the value of EST_ASSO
+     * Get the value of ESTASSO
      */ 
-    public function get_EST_ASSO()
+    public function get_ESTASSO()
     {
-        return $this->EST_ASSO;
+        return $this->ESTASSO;
     }
 
     /**
-     * Set the value of EST_ASSO
+     * Set the value of ESTASSO
      *
      * @return  self
      */ 
-    public function set_EST_ASSO($EST_ASSO)
+    public function set_ESTASSO($ESTASSO)
     {
-        $this->EST_ASSO = $EST_ASSO;
+        $this->ESTASSO = $ESTASSO;
 
         return $this;
     }
