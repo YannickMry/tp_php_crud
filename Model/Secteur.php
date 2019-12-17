@@ -1,33 +1,24 @@
 <?php
 
-namespace App\Model\Secteur;
+namespace App\Model;
 
 class Secteur {
 
-    private $libelle;
+    private $ID;
+    private $LIBELLE;
 
-    public function __construct(string $libelle)
+    public function __construct(int $ID, string $LIBELLE)
     {
-        $this->libelle = $libelle;
+        $this->ID = $ID;
+        $this->LIBELLE = $LIBELLE;
     }
 
-    /**
-     * Get the value of libelle
-     */ 
-    public function getLibelle()
-    {
-        return $this->libelle;
+    public function __get($property) {
+        return $this->{$property};
     }
 
-    /**
-     * Set the value of libelle
-     *
-     * @return  self
-     */ 
-    public function setLibelle($libelle)
-    {
-        $this->libelle = $libelle;
-
-        return $this;
+    public function __set($property, $value) {
+        return $this->{$property} = $value;
     }
+
 }

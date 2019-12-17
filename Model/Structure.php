@@ -4,11 +4,11 @@ namespace App\Model;
 
 abstract class Structure {
 
-    private $ID;
-    private $NOM;
-    private $RUE;
-    private $CP;
-    private $VILLE;
+    protected $ID;
+    protected $NOM;
+    protected $RUE;
+    protected $CP;
+    protected $VILLE;
 
     public function __construct(int $ID, string $NOM, string $RUE, string $CP, string $VILLE)
     {

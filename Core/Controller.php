@@ -19,7 +19,7 @@ class Controller {
         }
     
         ob_start();
-        require_once(app_path('View/'.$name.'.php'));
+        require(app_path('View/'.$name.'.php'));
         $view = ob_get_contents();
         ob_end_clean();
         echo $view;

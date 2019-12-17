@@ -17,6 +17,12 @@ class Association extends Structure {
         $this->EST_ASSO = true;
     }
 
+    public function __get($property) {
+        if(isset($this->{$property})) {
+            return $this->{$property};
+        }
+    }
+
     public function get_NB_DONATIONS() {
         return $this->NB_DONATIONS;
     }

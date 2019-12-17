@@ -1,4 +1,4 @@
-<table class="table">
+<table class="table w-100" style="overflow-x: scroll;">
   <thead>
     <tr>
         <?php foreach($headers as $h): ?>

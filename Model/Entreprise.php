@@ -16,6 +16,12 @@ class Entreprise extends Structure {
         $this->ESTASSO = false;
     }
 
+    public function __get($property) {
+        if(isset($this->{$property})) {
+            return $this->{$property};
+        }
+    }
+
     public function get_NB_ACTIONNAIRES() {
         return $this->NB_DONATIONS;
     }
