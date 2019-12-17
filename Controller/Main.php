@@ -3,15 +3,11 @@
 namespace App\Controller;
 
 require(app_path('/Core/Controller.php'));
-require(app_path('/Model/Secteur.php'));
 require(app_path('/Model/SecteurManager.php'));
-require(app_path('/Model/Structure.php'));
 require(app_path('/Model/StructureManager.php'));
  
 use App\Core\Controller;
-use App\Model\Secteur;
 use App\Model\SecteurManager;
-use App\Model\Structure;
 use App\Model\StructureManager;
 
 class Main extends Controller {
@@ -29,16 +25,17 @@ class Main extends Controller {
 
         $structure_data['headers'] = $structure_m->getHeaders();
         $structure_data['rows'] = $structure_m->getAll();
+        $structure_data['title'] = 'structure';
 
         $secteur_data['headers'] = $secteur_m->getHeaders();
         $secteur_data['rows'] = $secteur_m->getAll();
-        var_dump($secteur_data);
+        $secteur_data['title'] = 'secteur';
         $this->load_view('header', $data);
         $this->load_view('table', $structure_data);
         $this->load_view('table', $secteur_data);
         $this->load_view('footer');
     }
-    public function test() {
-        echo 'test';
+    public function test(int $id) {
+        echo 'id : '. $id;
     }
 }

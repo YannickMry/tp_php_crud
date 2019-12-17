@@ -9,6 +9,7 @@ abstract class Structure {
     protected $RUE;
     protected $CP;
     protected $VILLE;
+    protected $SECTEURS;
 
     public function __construct(int $ID, string $NOM, string $RUE, string $CP, string $VILLE)
     {
