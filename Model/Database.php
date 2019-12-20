@@ -11,7 +11,7 @@ class Database {
     const DBNAME = "tp_php_crud";
     const CHARSET = "UTF-8";
     const USER = "root";
-    const PASS = "";
+    const PASS = "root";
 
     private $client;
 

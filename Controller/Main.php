@@ -35,7 +35,16 @@ class Main extends Controller {
         $this->load_view('table', $secteur_data);
         $this->load_view('footer');
     }
-    public function test(int $id) {
-        echo 'id : '. $id;
+
+    public function create() {
+        
+    }
+
+    public function update(string $entity, int $id) {
+        
+    }
+
+    public function delete(string $entity, int $id) {
+
     }
 }
