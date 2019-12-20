@@ -62,6 +62,45 @@ class StructureManager {
         return $this->createEntrepriseOrAssociationObject($structure);
     }
 
+    public function insert($structure){
+        $sql = 'INSERT INTO structure (NOM, RUE, CP, VILLE, ESTASSO, NB_DONATEURS, NB_ACTIONNAIRES) 
+                VALUES (:nom, :rue, :cp, :ville, :estasso, :nb_donateurs, :nb_actionnaires)';
+
+        $query = $this->bdd->client->prepare($sql);
+        $req = $query->execute([
+            'id'                => $structure->__get("ID"),
+            'nom'               => $structure->__get("NOM"),
+            'rue'               => $structure->__get("RUE"),
+            'cp'                => $structure->__get("CP"),
+            'ville'             => $structure->__get("VILLE"),
+            'estasso'           => $structure->__get("ESTASSO"),
+            'nb_donateurs'      => $structure->__get("NB_DONATEURS"),
+            'nb_actionnaires'   => $structure->__get("NB_ACTIONNAIRES"),
+        ]);
+        if($req === false){
+            throw new Exception("Impossible d'effectuer l'ajout de la structure " . $structure->__get('NOM'));
+        }
+    }
+
+    public function update($structure){
+        $sql = 'UPDATE structure SET NOM = :nom, RUE = :rue, CP = :cp, VILLE = :ville, ESTASSO = :estasso, NB_DONATEURS = :nb_donateurs, NB_ACTIONNAIRES = :nb_actionnaires WHERE ID = :id';
+
+        $query = $this->bdd->client->prepare($sql);
+        $req = $query->execute([
+            'id'                => $structure->__get("ID"),
+            'nom'               => $structure->__get("NOM"),
+            'rue'               => $structure->__get("RUE"),
+            'cp'                => $structure->__get("CP"),
+            'ville'             => $structure->__get("VILLE"),
+            'estasso'           => $structure->__get("ESTASSO"),
+            'nb_donateurs'      => $structure->__get("NB_DONATEURS"),
+            'nb_actionnaires'   => $structure->__get("NB_ACTIONNAIRES"),
+        ]);
+        if($req === false){
+            throw new Exception("Impossible d'effectuer une mise à jour sur l'enregistrement $secteur->__get('ID')");
+        }
+    }
+
     public function delete(int $id){
         $sql = 'DELETE FROM structure WHERE id = ?';
         $query = $this->bdd->client->prepare($sql);
@@ -118,7 +157,7 @@ class StructureManager {
      * @param stdClass $s
      * @return Entreprise|Association
      */
-    private function createEntrepriseOrAssociationObject(stdClass $s)
+    public function createEntrepriseOrAssociationObject(stdClass $s)
     {
         if($s->ESTASSO === '1'){
             $structure = new Association($s->ID, $s->NOM, $s->RUE, $s->CP, $s->VILLE, $s->NB_DONATEURS);

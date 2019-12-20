@@ -12,7 +12,6 @@ use Exception;
 
 class SecteurManager {
 
-    private $data;
     private $bdd;
 
     public function __construct() {
@@ -52,6 +51,18 @@ class SecteurManager {
         }
 
         return $secteur;
+    }
+
+    public function insert(Secteur $secteur){
+        $sql = 'INSERT INTO secteur (LIBELLE) VALUES (:libelle)';
+
+        $query = $this->bdd->client->prepare($sql);
+        $req = $query->execute([
+            'libelle'   => $secteur->__get("LIBELLE")
+        ]);
+        if($req === false){
+            throw new Exception("Impossible d'effectuer l'ajout de ce nouveau secteur");
+        }
     }
 
     public function update(Secteur $secteur){
@@ -103,12 +114,13 @@ class SecteurManager {
     public function getHeaders(){
         
         $sql = 'SHOW COLUMNS FROM secteur';
+        $data = [];
 
         foreach($this->bdd->client->query($sql, PDO::FETCH_OBJ) as $v){
-            $this->data[] = $v->Field;
+            $data[] = $v->Field;
         }
 
-        return $this->data;
+        return $data;
     }
 
 }
