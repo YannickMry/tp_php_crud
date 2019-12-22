@@ -30,7 +30,7 @@ class Main extends Controller {
         
         $structure_m = new StructureManager();
         $secteur_m = new SecteurManager();
-        $assoc_m = new SecteursStructuresManager();
+        $secteurs_structures_m = new SecteursStructuresManager();
 
         $structure_data['headers']  = $structure_m->getHeaders();
         $structure_data['rows']     = $structure_m->getAll();
@@ -40,14 +40,23 @@ class Main extends Controller {
         $secteur_data['rows']       = $secteur_m->getAll();
         $secteur_data['entity']      = 'Secteur';
 
-        $assoc_data['headers']    = ['ID', 'SECTEUR', 'STRUCTURE'];
-        $assoc_data['rows']       = $assoc_m->getAll();
-        $assoc_data['entity']      = 'SecteursStructures';
+        $secteurs_structures_data['headers']    = ['ID', 'SECTEUR', 'STRUCTURE'];
+        $secteurs_structures_data['rows']       = $secteurs_structures_m->getAll();
+        $arr = [];
+        foreach($secteurs_structures_data['rows'] as $ss) {
+            $arr[] = (object) [
+                'ID' => $ss->ID,
+                'SECTEUR' => $ss->secteur->LIBELLE,
+                'STRUCTURE' => $ss->structure->NOM
+            ];
+        }
+        $secteurs_structures_data['rows']   = $arr;
+        $secteurs_structures_data['entity'] = 'SecteursStructures';
 
         $this->load_view('header', $data);
         $this->load_view('table', $structure_data);
         $this->load_view('table', $secteur_data);
-        $this->load_view('table', $assoc_data);
+        $this->load_view('table', $secteurs_structures_data);
         $this->load_view('footer');
     }
 
@@ -74,7 +83,12 @@ class Main extends Controller {
                 $instance = new $entity();
 
                 foreach($_POST as $k => $v) {
-                    if($entity == 'App\Model\Structure' && $k == 'NB') {
+                    
+                    if(
+                        ($entity == 'App\Model\Entreprise' || $entity == 'App\Model\Association') && 
+                        $k == 'NB'
+                    ) {
+                        
                         if($entity == 'App\Model\Association') {
                             $instance->NB_DONATEURS = $v;
                         } elseif($entity == 'App\Model\Entreprise') {
@@ -85,19 +99,30 @@ class Main extends Controller {
                     }
                 } 
 
+                if($entity == 'App\Model\SecteursStructures') {
+                    $instance->secteur = (new SecteurManager)->getOne($_POST['ID_SECTEUR']);
+                    $instance->structure = (new StructureManager)->getOne($_POST['ID_STRUCTURE']);
+                }
+
                 $manager->insert($instance);
                 redirect();
 
             } else {
                 echo "L'entité $entity n'existe pas dans le système";
             }
+
         } else {
 
             $data['meta_title']         = 'Ajouter ' . ucfirst($entity);
             $data['meta_description']   = 'Page pour la création de ' . ucfirst($entity); 
 
+            if($entity == 'SecteursStructures') {
+                $data['secteurs']   = (new SecteurManager)->getAll();
+                $data['structures'] = (new StructureManager)->getAll();
+            }
+
             $this->load_view('header', $data);
-            $this->load_view('forms/' . ucfirst($entity));
+            $this->load_view('forms/' . ucfirst($entity), $data);
             $this->load_view('footer');
         }
     }
@@ -150,6 +175,11 @@ class Main extends Controller {
                 $data['meta_title']         = 'Modifier ' . ucfirst($entity);
                 $data['meta_description']   = 'Page pour la modificatione de ' . ucfirst($entity);
                 $data['form'] = $instance;
+
+                if($entity == 'SecteursStructures') {
+                    $data['secteurs']   = (new SecteurManager)->getAll();
+                    $data['structures'] = (new StructureManager)->getAll();
+                }
 
                 $this->load_view('header', $data);
                 $this->load_view('forms/' . ucfirst($entity), $data);

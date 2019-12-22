@@ -113,7 +113,7 @@ class Database {
 
     }
 
-    public function update($table, $values, $where)
+    public function update($table, $values, $where = [])
     {
         if(!empty($values)) {
             
@@ -153,7 +153,7 @@ class Database {
             }
 
             $query = $this->PDO->prepare($sql);
-            $query->execute($values);
+            $query->execute(array_merge($values, $where));
 
         } else { return false; }
     }

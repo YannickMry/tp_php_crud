@@ -29,7 +29,7 @@ class SecteurManager extends Manager {
 
         foreach ($secteurs as &$secteur) {
             $secteur = cast('App\Model\Secteur', $secteur);
-            $secteur->__set("STRUCTURES", (new StructureManager)->getStructures($secteur->ID));
+            $secteur->STRUCTURES =  (new StructureManager)->getStructures($secteur->ID);
         }
 
         return $secteurs;
@@ -45,38 +45,66 @@ class SecteurManager extends Manager {
     {
         $secteur = $this->db->select(self::TABLE, ['ID' => $id], 1);
         $secteur = cast('App\Model\Secteur', $secteur);
-        $secteur->__set("STRUCTURES", (new StructureManager)->getStructures($secteur->ID));
+        $secteur->STRUCTURES = (new StructureManager)->getStructures($secteur->ID);
 
         return $secteur;
     }
 
+    /**
+     * Permet d'ajouter un secteur en BDD
+     *
+     * @param Secteur $secteur
+     */
     public function insert(Secteur $secteur)
     {
-        $query = $this->db->insert(self::TABLE, ['LIBELLE' => $secteur->LIBELLE]);
+        if($secteur->LIBELLE != null) {
 
-        if($query === false){
-            throw new Exception("Impossible d'effectuer l'ajout de ce nouveau secteur");
+            $query = $this->db->insert(self::TABLE, ['LIBELLE' => $secteur->LIBELLE]);
+
+            if($query === false){
+                echo "Impossible d'effectuer l'ajout de ce nouveau secteur";die();
+            }
+
+        } else {
+            echo "Champ(s) manquant(s)";die();
         }
     }
 
+    /**
+     * Permet de modifier un secteur en BDD
+     *
+     * @param Secteur $secteur
+     */
     public function update(Secteur $secteur)
     {
-        $query = $this->db->update(self::TABLE, [
-            'ID'        => $secteur->ID,
-            'LIBELLE'   => $secteur->LIBELLE
-        ]);
+        if(
+            $secteur->LIBELLE != null &&
+            $secteur->ID != null
+        ) {
 
-        if($query === false){
-            throw new Exception("Impossible d'effectuer une mise à jour sur l'enregistrement $secteur->__get('ID')");
+            $query = $this->db->update(self::TABLE, ['LIBELLE'   => $secteur->LIBELLE], ['ID' => $secteur->ID]);
+
+            if($query === false){
+                echo "Impossible d'effectuer une mise à jour sur l'enregistrement $secteur->ID";die();
+            }
+
+        } else {
+            echo "Champ(s) manquant(s)";die();
         }
+        
     }
 
+    /**
+     * Permet de supprimer un secteur en fonction de l'ID passé en paramètre
+     *
+     * @param integer $id
+     */
     public function delete(int $id)
     {
         $query = $this->db->delete(self::TABLE, ['ID' => $id]);
 
         if($query === false){
-            throw new Exception("Impossible de supprimer l'enregistrement $id dans la table secteur");
+            echo "Impossible de supprimer l'enregistrement $id dans la table secteur";die();
         }
     }
 

@@ -22,7 +22,7 @@ class StructureManager extends Manager {
     }
 
     /**
-     * Permet de récupérer toutes les structures stocké en BDD
+     * Permet de récupérer toutes les structures stockées en BDD
      *
      * @return array
      */
@@ -48,54 +48,89 @@ class StructureManager extends Manager {
         $structure = $this->db->select(self::TABLE, ['ID' => $id], 1);
 
         if($structure === false){
-            throw new Exception('Aucune structure ne correspond à cet ID');
+            echo 'Aucune structure ne correspond à cet ID';die();
         }
 
         return $this->createEntrepriseOrAssociationObject($structure);
     }
 
+    /**
+     * Permet de d'insérer une structure en BDD
+     *
+     * @param Structure $structure
+     */
     public function insert($structure)
-    {
-        $last_insert_id = $this->db->insert(self::TABLE, [
-            'ID'                => $structure->ID,
-            'NOM'               => $structure->NOM,
-            'RUE'               => $structure->RUE,
-            'CP'                => $structure->CP,
-            'VILLE'             => $structure->VILLE,
-            'ESTASSO'           => $structure->ESTASSO == 'on' || $structure->ESTASSO == true  ? 1 : 0,
-            'NB_DONATEURS'      => $structure->NB_DONATEURS,
-            'NB_ACTIONNAIRES'   => $structure->NB_ACTIONNAIRES,
-        ]);
+    {   
+        if(
+            $structure->NOM != null &&
+            $structure->RUE != null &&
+            $structure->CP != null &&
+            $structure->VILLE != null
+        ) {
+            $last_insert_id = $this->db->insert(self::TABLE, [
+                'ID'                => $structure->ID,
+                'NOM'               => $structure->NOM,
+                'RUE'               => $structure->RUE,
+                'CP'                => $structure->CP,
+                'VILLE'             => $structure->VILLE,
+                'ESTASSO'           => $structure->ESTASSO == 'on' || $structure->ESTASSO == true  ? 1 : 0,
+                'NB_DONATEURS'      => $structure->NB_DONATEURS,
+                'NB_ACTIONNAIRES'   => $structure->NB_ACTIONNAIRES,
+            ]);
+    
+            if($last_insert_id == false){
+                echo "Impossible d'effectuer l'ajout de la structure " . $structure->NOM;die();
+            }
 
-        if($last_insert_id == false){
-            throw new Exception("Impossible d'effectuer l'ajout de la structure " . $structure->NOM);
-        }
+        } else {
+            echo "Champ(s) manquant(s)";die();
+        }  
     }
-
+    /**
+     * Permet de modifier une structure en BDD
+     *
+     * @param Structure $structure
+     */
     public function update($structure)
     {
-        $query = $this->db->update(self::TABLE, [
-            'ID'                => $structure->ID,
-            'NOM'               => $structure->NOM,
-            'RUE'               => $structure->RUE,
-            'CP'                => $structure->CP,
-            'VILLE'             => $structure->VILLE,
-            'ESTASSO'           => $structure->ESTASSO == 'on' || $structure->ESTASSO == true  ? 1 : 0,
-            'NB_DONATEURS'      => $structure->NB_DONATEURS,
-            'NB_ACTIONNAIRES'   => $structure->NB_ACTIONNAIRES,
-        ], ['ID' => $structure->ID]);
+        if(
+            $structure->NOM != null &&
+            $structure->RUE != null &&
+            $structure->CP != null &&
+            $structure->VILLE != null
+        ) {
 
-        if($query === false){
-            throw new Exception("Impossible d'effectuer une mise à jour sur l'enregistrement $secteur->ID");
+            $query = $this->db->update(self::TABLE, [
+                'NOM'               => $structure->NOM,
+                'RUE'               => $structure->RUE,
+                'CP'                => $structure->CP,
+                'VILLE'             => $structure->VILLE,
+                'ESTASSO'           => $structure->ESTASSO == 'on' || $structure->ESTASSO == true  ? 1 : 0,
+                'NB_DONATEURS'      => $structure->NB_DONATEURS,
+                'NB_ACTIONNAIRES'   => $structure->NB_ACTIONNAIRES,
+            ], ['ID' => $structure->ID]);
+    
+            if($query === false){
+                echo "Impossible d'effectuer une mise à jour sur l'enregistrement $secteur->ID";die();
+            }
+
+        } else {
+            echo "Champ(s) manquant(s)";die();
         }
+        
     }
 
+    /**
+     * Permet de supprimer une structure en BDD en fonction de l'ID passé en paramètre
+     *
+     * @param integer $id
+     */
     public function delete(int $id)
     {
         $query = $this->db->delete(self::TABLE, ['ID' => $id]);
 
         if($query === false){
-            throw new Exception("Impossible de supprimer l'enregistrement $id dans la table structure");
+            echo "Impossible de supprimer l'enregistrement $id dans la table structure";die();
         }
     }
 
