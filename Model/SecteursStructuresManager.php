@@ -95,13 +95,11 @@ class SecteursStructuresManager extends Manager {
         } else {
 
             if(
-                $ss->ID != null &&
                 $ss->structure->ID != null &&
                 $ss->secteur->ID != null
             ) {
 
                 $query = $this->db->insert(self::TABLE, [
-                    'ID' => $ss->ID,
                     'ID_STRUCTURE' => $ss->structure->ID,
                     'ID_SECTEUR' => $ss->secteur->ID,
                 ]);
