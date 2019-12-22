@@ -2,23 +2,23 @@
 
 namespace App\Model;
 
-require_once('Database.php');
-require_once('Entreprise.php');
-require_once('Association.php');
+require_once(app_path('Core/Manager.php'));
+require_once('Model/Entreprise.php');
+require_once('Model/Association.php');
 
-use \PDO;
-use Exception;
-use App\Model\Database;
+use App\Core\Manager;
 use App\Model\Entreprise;
 use App\Model\Association;
 use stdClass;
+use \PDO;
 
-class StructureManager {
+class StructureManager extends Manager {
 
-    private $bdd;
+    const TABLE = 'structure';
 
-    public function __construct() {
-        $this->bdd = new Database();
+    public function __construct()
+    {
+        parent::__construct(self::TABLE);
     }
 
     /**
@@ -26,20 +26,15 @@ class StructureManager {
      *
      * @return array
      */
-    public function getAll(){
-        
-        $sql = 'SELECT * FROM structure';
+    public function getAll()
+    {
+        $structures = $this->db->select(self::TABLE);
 
-        $query = $this->bdd->client->query($sql);
-        $structures = $query->fetchAll(PDO::FETCH_OBJ);
-        
-
-        foreach($structures as $s){
-            
-            $data[] = $this->createEntrepriseOrAssociationObject($s);
+        foreach($structures as &$s){
+            $s = $this->createEntrepriseOrAssociationObject($s);
         }
 
-        return $data;
+        return $structures;
     }
 
     /**
@@ -48,12 +43,9 @@ class StructureManager {
      * @param integer $id
      * @return Entreprise|Association
      */
-    public function getOne(int $id){
-        $sql = 'SELECT * FROM structure WHERE id = :id';
-        $query = $this->bdd->client->prepare($sql);
-        $query->execute(['id' => $id]);
-        $query->setFetchMode(PDO::FETCH_OBJ);
-        $structure = $query->fetch();
+    public function getOne(int $id)
+    {
+        $structure = $this->db->select(self::TABLE, ['ID' => $id], 1);
 
         if($structure === false){
             throw new Exception('Aucune structure ne correspond à cet ID');
@@ -62,69 +54,49 @@ class StructureManager {
         return $this->createEntrepriseOrAssociationObject($structure);
     }
 
-    public function insert($structure){
-        $sql = 'INSERT INTO structure (NOM, RUE, CP, VILLE, ESTASSO, NB_DONATEURS, NB_ACTIONNAIRES) 
-                VALUES (:nom, :rue, :cp, :ville, :estasso, :nb_donateurs, :nb_actionnaires)';
-
-        $query = $this->bdd->client->prepare($sql);
-        $req = $query->execute([
-            'id'                => $structure->__get("ID"),
-            'nom'               => $structure->__get("NOM"),
-            'rue'               => $structure->__get("RUE"),
-            'cp'                => $structure->__get("CP"),
-            'ville'             => $structure->__get("VILLE"),
-            'estasso'           => $structure->__get("ESTASSO"),
-            'nb_donateurs'      => $structure->__get("NB_DONATEURS"),
-            'nb_actionnaires'   => $structure->__get("NB_ACTIONNAIRES"),
+    public function insert($structure)
+    {
+        $last_insert_id = $this->db->insert(self::TABLE, [
+            'ID'                => $structure->ID,
+            'NOM'               => $structure->NOM,
+            'RUE'               => $structure->RUE,
+            'CP'                => $structure->CP,
+            'VILLE'             => $structure->VILLE,
+            'ESTASSO'           => $structure->ESTASSO,
+            'NB_DONATEURS'      => $structure->NB_DONATEURS,
+            'NB_ACTIONNAIRES'   => $structure->NB_ACTIONNAIRES,
         ]);
-        if($req === false){
-            throw new Exception("Impossible d'effectuer l'ajout de la structure " . $structure->__get('NOM'));
+
+        if($last_insert_id == false){
+            throw new Exception("Impossible d'effectuer l'ajout de la structure " . $structure->NOM);
         }
     }
 
-    public function update($structure){
-        $sql = 'UPDATE structure SET NOM = :nom, RUE = :rue, CP = :cp, VILLE = :ville, ESTASSO = :estasso, NB_DONATEURS = :nb_donateurs, NB_ACTIONNAIRES = :nb_actionnaires WHERE ID = :id';
-
-        $query = $this->bdd->client->prepare($sql);
-        $req = $query->execute([
-            'id'                => $structure->__get("ID"),
-            'nom'               => $structure->__get("NOM"),
-            'rue'               => $structure->__get("RUE"),
-            'cp'                => $structure->__get("CP"),
-            'ville'             => $structure->__get("VILLE"),
-            'estasso'           => $structure->__get("ESTASSO"),
-            'nb_donateurs'      => $structure->__get("NB_DONATEURS"),
-            'nb_actionnaires'   => $structure->__get("NB_ACTIONNAIRES"),
+    public function update($structure)
+    {
+        $query = $this->db->update(self::TABLE, [
+            'ID'                => $structure->ID,
+            'NOM'               => $structure->NOM,
+            'RUE'               => $structure->RUE,
+            'CP'                => $structure->CP,
+            'VILLE'             => $structure->VILLE,
+            'ESTASSO'           => $structure->ESTASSO,
+            'NB_DONATEURS'      => $structure->NB_DONATEURS,
+            'NB_ACTIONNAIRES'   => $structure->NB_ACTIONNAIRES,
         ]);
-        if($req === false){
-            throw new Exception("Impossible d'effectuer une mise à jour sur l'enregistrement $secteur->__get('ID')");
+
+        if($query === false){
+            throw new Exception("Impossible d'effectuer une mise à jour sur l'enregistrement $secteur->ID");
         }
     }
 
-    public function delete(int $id){
-        $sql = 'DELETE FROM structure WHERE id = ?';
-        $query = $this->bdd->client->prepare($sql);
-        $req = $query->execute([$id]);
+    public function delete(int $id)
+    {
+        $query = $this->db->delete(self::TABLE, ['ID' => $id]);
 
-        if($req === false){
+        if($query === false){
             throw new Exception("Impossible de supprimer l'enregistrement $id dans la table structure");
         }
-    }
-
-    /**
-     * Permet de récupérer tous les headers de la table structure
-     *
-     * @return array
-     */
-    public function getHeaders(){
-        
-        $sql = 'SHOW COLUMNS FROM structure';
-
-        foreach($this->bdd->client->query($sql, PDO::FETCH_OBJ) as $v){
-            $data[] = $v->Field;
-        }
-
-        return $data;
     }
 
     /**
@@ -133,12 +105,13 @@ class StructureManager {
      * @param integer $id ID d'un secteur
      * @return array
      */
-    public function getStructures(int $id){
+    public function getStructures(int $id)
+    {
         $sql = 'SELECT structure.* 
                 FROM secteurs_structures ss
                 JOIN structure ON ss.ID_SECTEUR = structure.ID
                 WHERE ss.ID_SECTEUR = :id';
-        $query = $this->bdd->client->prepare($sql);
+        $query = $this->db->PDO->prepare($sql);
         $query->execute(['id' => $id]);
         $structures = $query->fetchAll(PDO::FETCH_OBJ);
 
@@ -159,13 +132,14 @@ class StructureManager {
      */
     public function createEntrepriseOrAssociationObject(stdClass $s)
     {
-        if($s->ESTASSO === '1'){
+        if(intval($s->ESTASSO) === 1){
             $structure = new Association($s->ID, $s->NOM, $s->RUE, $s->CP, $s->VILLE, $s->NB_DONATEURS);
         } else {
             $structure = new Entreprise($s->ID, $s->NOM, $s->RUE, $s->CP, $s->VILLE, $s->NB_ACTIONNAIRES);
         }
-        $structure->__set("SECTEURS", (new SecteurManager())->getSecteurs($s->ID));
 
+        $structure->SECTEURS =  (new SecteurManager())->getSecteurs($s->ID);
+        
         return $structure;
     }
 

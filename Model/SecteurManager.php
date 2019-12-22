@@ -2,20 +2,20 @@
 
 namespace App\Model;
 
-require_once('Database.php');
-require_once('Secteur.php');
+require_once(app_path('Core/Manager.php'));
+require_once(app_path('Model/Secteur.php'));
 
 use \PDO;
-use App\Model\Database;
+use App\Core\Manager;
 use App\Model\Secteur;
-use Exception;
 
-class SecteurManager {
+class SecteurManager extends Manager {
 
-    private $bdd;
+    const TABLE = 'secteur';
 
-    public function __construct() {
-        $this->bdd = new Database();
+    public function __construct()
+    {
+        parent::__construct(self::TABLE);
     }
 
     /**
@@ -23,13 +23,15 @@ class SecteurManager {
      *
      * @return array
      */
-    public function getAll(){
-        
-        $sql = 'SELECT * FROM secteur ORDER BY id ASC';
-        $secteurs = $this->bdd->client->query($sql, PDO::FETCH_CLASS, Secteur::class)->fetchAll();
-        foreach ($secteurs as $secteur) {
-            $secteur->__set("STRUCTURES", (new StructureManager)->getStructures($secteur->__get("ID")));
+    public function getAll()
+    {
+        $secteurs = $this->db->select(self::TABLE);
+
+        foreach ($secteurs as &$secteur) {
+            $secteur = cast('App\Model\Secteur', $secteur);
+            $secteur->__set("STRUCTURES", (new StructureManager)->getStructures($secteur->ID));
         }
+
         return $secteurs;
     }
 
@@ -39,51 +41,41 @@ class SecteurManager {
      * @param integer $id
      * @return Secteur
      */
-    public function getOne(int $id){
-        $sql = 'SELECT * FROM secteur WHERE id = :id';
-        $query = $this->bdd->client->prepare($sql);
-        $query->execute(['id' => $id]);
-        $query->setFetchMode(PDO::FETCH_CLASS, Secteur::class);
-        $secteur = $query->fetch();
-        $secteur->__set("STRUCTURES", (new StructureManager)->getStructures($secteur->__get("ID")));
-        if($secteur === false){
-            throw new Exception('Aucun secteur ne correspond à cet ID');
-        }
+    public function getOne(int $id)
+    {
+        $secteur = $this->db->select(self::TABLE, ['ID' => $id], 1);
+        $secteur = cast('App\Model\Secteur', $secteur);
+        $secteur->__set("STRUCTURES", (new StructureManager)->getStructures($secteur->ID));
 
         return $secteur;
     }
 
-    public function insert(Secteur $secteur){
-        $sql = 'INSERT INTO secteur (LIBELLE) VALUES (:libelle)';
+    public function insert(Secteur $secteur)
+    {
+        $query = $this->db->insert(self::TABLE, ['LIBELLE' => $secteur->LIBELLE]);
 
-        $query = $this->bdd->client->prepare($sql);
-        $req = $query->execute([
-            'libelle'   => $secteur->__get("LIBELLE")
-        ]);
-        if($req === false){
+        if($query === false){
             throw new Exception("Impossible d'effectuer l'ajout de ce nouveau secteur");
         }
     }
 
-    public function update(Secteur $secteur){
-        $sql = 'UPDATE secteur SET LIBELLE = :libelle WHERE ID = :id';
-
-        $query = $this->bdd->client->prepare($sql);
-        $req = $query->execute([
-            'id'        => $secteur->__get("ID"),
-            'libelle'   => $secteur->__get("LIBELLE")
+    public function update(Secteur $secteur)
+    {
+        $query = $this->db->update(self::TABLE, [
+            'ID'        => $secteur->ID,
+            'LIBELLE'   => $secteur->LIBELLE
         ]);
-        if($req === false){
+
+        if($query === false){
             throw new Exception("Impossible d'effectuer une mise à jour sur l'enregistrement $secteur->__get('ID')");
         }
     }
 
-    public function delete(int $id){
-        $sql = 'DELETE FROM secteur WHERE id = ?';
-        $query = $this->bdd->client->prepare($sql);
-        $req = $query->execute([$id]);
+    public function delete(int $id)
+    {
+        $query = $this->db->delete(self::TABLE, ['ID' => $id]);
 
-        if($req === false){
+        if($query === false){
             throw new Exception("Impossible de supprimer l'enregistrement $id dans la table secteur");
         }
     }
@@ -94,33 +86,16 @@ class SecteurManager {
      * @param integer $id ID d'une structure
      * @return Secteur[]
      */
-    public function getSecteurs(int $id){
+    public function getSecteurs(int $id)
+    {
         $sql = 'SELECT secteur.ID, secteur.LIBELLE 
                 FROM secteurs_structures ss
                 JOIN secteur ON ss.ID_SECTEUR = secteur.ID
                 WHERE ss.ID_STRUCTURE = :id';
-        $query = $this->bdd->client->prepare($sql);
+        $query = $this->db->PDO->prepare($sql);
         $query->execute(['id' => $id]);
         $secteurs = $query->fetchAll(PDO::FETCH_CLASS, Secteur::class);
 
         return $secteurs;
     }
-
-    /**
-     * Permet de récupérer tous les headers de la table secteur
-     *
-     * @return array
-     */
-    public function getHeaders(){
-        
-        $sql = 'SHOW COLUMNS FROM secteur';
-        $data = [];
-
-        foreach($this->bdd->client->query($sql, PDO::FETCH_OBJ) as $v){
-            $data[] = $v->Field;
-        }
-
-        return $data;
-    }
-
 }

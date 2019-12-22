@@ -8,10 +8,11 @@
 // Pour une méthode avec des paramètres, il faut obligatoirement qu'une route soit configurée.
 
 
-require('config.php');
-require('routes.php');
+require('config/config.php');
+require('config/database.php');
+require('config/routes.php');
 require('helpers.php');
-require('strings.php');
+require('config/strings.php');
 
 $uri = substr($_SERVER['REQUEST_URI'], 1); // Enlève le premier "/"
 $uri_segments = explode('/', $uri);

@@ -1,17 +1,15 @@
 <?php
 
-require_once('config.php');
-
 function redirect($url = '') {
-    header('Location: '.$config['base_url'].'/'.$url);
+    header('Location: '.config('config')['base_url'] . $url);
 }
 
 function app_path($path = '') {
-    return str_replace('\\', '/', __DIR__.'/'.$path);
+    return str_replace('\\', '/', __DIR__ . '/' . $path);
 }
 
 function base_url($path = '') {
-    return $config['base_url'] . '/' . $path;
+    return config('config')['base_url'] . $path;
 }
 
 function value_input_type($name) {
@@ -32,3 +30,44 @@ function method_get_arg_names($class_name, $method_name) {
     }
     return $result;
 }
+
+function config($param = '') {
+    require(app_path("config/$param.php"));
+    if($param == '') {
+        return $config;
+    } elseif(isset(${$param})) {
+        return ${$param};
+    } else {
+        return null;
+    }
+}
+
+/**
+ * Class casting
+ *
+ * @param string|object $destination
+ * @param object $sourceObject
+ * @return object
+ */
+ function cast($destination, $sourceObject)
+ {
+     if (is_string($destination)) {
+         $destination = new $destination();
+     }
+     $sourceReflection = new ReflectionObject($sourceObject);
+     $destinationReflection = new ReflectionObject($destination);
+     $sourceProperties = $sourceReflection->getProperties();
+     foreach ($sourceProperties as $sourceProperty) {
+         $sourceProperty->setAccessible(true);
+         $name = $sourceProperty->getName();
+         $value = $sourceProperty->getValue($sourceObject);
+         if ($destinationReflection->hasProperty($name)) {
+             $propDest = $destinationReflection->getProperty($name);
+             $propDest->setAccessible(true);
+             $propDest->setValue($destination,$value);
+         } else {
+             $destination->$name = $value;
+         }
+     }
+     return $destination;
+ }

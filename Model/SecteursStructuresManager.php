@@ -2,27 +2,28 @@
 
 namespace App\Model;
 
-use PDO;
-use App\Model\Database;
-use App\Model\SecteurManager;
+require_once(app_path('Core/Manager.php'));
 
-class SecteursStructuresManager {
+use App\Core\Manager;
+use \PDO;
 
-    private $bdd;
+class SecteursStructuresManager extends Manager {
 
-    public function __construct() {
-        $this->bdd = new Database();
+    const TABLE = 'secteurs_structures';
+
+    public function __construct()
+    {
+        parent::__construct(self::TABLE);
     }
 
-    // ? Est ce qu'il y a vraiment besoin de cette fonction ?
     public function getAll()
     {
-        $sql = 'SELECT secteurs_structures.ID, secteur.LIBELLE, structure.NOM
-        FROM secteurs_structures
-        JOIN secteur ON secteurs_structures.ID_SECTEUR = secteur.ID
-        JOIN structure ON secteurs_structures.ID_STRUCTURE = structure.ID
-        ORDER BY secteur.LIBELLE';
-        $secteursStructures = $this->bdd->client->query($sql)->fetchAll(PDO::FETCH_OBJ);
+        $sql = 'SELECT ss.ID, se.LIBELLE SECTEUR, st.NOM STRUCTURE
+        FROM secteurs_structures ss
+        JOIN secteur se ON ss.ID_SECTEUR = se.ID
+        JOIN structure st ON ss.ID_STRUCTURE = st.ID
+        ORDER BY se.LIBELLE';
+        $secteursStructures = $this->db->PDO->query($sql)->fetchAll(PDO::FETCH_OBJ);
         $data = [];
         // ? 
         // foreach($secteursStructures as $k => $secteurStructure){

@@ -2,7 +2,7 @@
 
 namespace App\Model;
 
-abstract class Structure {
+class Structure {
 
     protected $ID;
     protected $NOM;
