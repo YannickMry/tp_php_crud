@@ -8,9 +8,8 @@ use App\Model\Structure;
 class Entreprise extends Structure {
 
     private $NB_ACTIONNAIRES;
-    private $ESTASSO;
 
-    public function __construct($ID, $NOM, $RUE, $CP, $VILLE, $NB_ACTIONNAIRES) {
+    public function __construct($ID = null, $NOM = '', $RUE = '', $CP = null, $VILLE = '', $NB_ACTIONNAIRES = null) {
         parent::__construct($ID, $NOM, $RUE, $CP, $VILLE);
         $this->NB_ACTIONNAIRES = $NB_ACTIONNAIRES;
         $this->ESTASSO = false;

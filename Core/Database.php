@@ -35,7 +35,7 @@ class Database {
         $sql = "SELECT * FROM $table";
 
         if(!empty($where)) {
-            $sql .= ' WHERE 1=1';
+            $sql .= ' WHERE 1 = 1';
             $i = 1;
             $len = count($where);
             foreach($where as $k => $v) {
@@ -49,8 +49,9 @@ class Database {
         if(!empty($where)) {
 
             $query = $this->PDO->prepare($sql);
+            
             $query->setFetchMode(PDO::FETCH_OBJ);            
-            $query = $query->execute($where);
+            $query->execute($where);
 
         } else {
             $query = $this->PDO->query($sql, PDO::FETCH_OBJ);
@@ -63,33 +64,48 @@ class Database {
         }
     }
 
-    public function insert($table, $params)
+    public function insert($table, $values)
     {
         $sql = "INSERT INTO $table (";
-        $i = 1;
-        $len = count($params);
-        foreach($params as $k => $v) {
-            $sql .= "$k";
-            if ($i <= $len) {
-                $sql .= ',';
+
+        foreach($values as $k => $v) {
+            if(!isset($v)) {
+                unset($values[$k]);
             }
+        }
+
+        $i = 0;
+        $prev = null;
+        foreach($values as $k => $v) {
+            if(isset($v)) {
+                if ($i > 0 && isset($prev)) {
+                    $sql .= ', ';
+                }
+                $sql .= "$k";
+            }
+            $prev = $v;
             $i++;
         }
 
         $sql .= ') VALUES (';
-        $i = 1;
-        $len = count($params);
-        foreach($params as $k => $v) {
-            $sql .= "$v";
-            if ($i <= $len) {
-                $sql .= ',';
+        $i = 0;
+        $prev = null;
+        foreach($values as $k => $v) {
+            if(isset($v)) {
+                if ($i > 0 && isset($prev)) {
+                    $sql .= ', ';
+                }
+                $sql .= ":$k";
             }
+            $prev = $v;
             $i++;
         }
 
+        $sql .= ')';
+
         $query = $this->PDO->prepare($sql);
 
-        if($query->execute($params)) {
+        if($query->execute($values)) {
             return $this->PDO->lastInsertId();
         } else {
             return false;
@@ -97,42 +113,65 @@ class Database {
 
     }
 
-    public function update($table, $params)
+    public function update($table, $values, $where)
     {
-        if(!empty($params)) {
+        if(!empty($values)) {
             
             $sql = "UPDATE $table SET";
-            $i = 1;
-            $len = count($params);
-            foreach($params as $k => $v) {
-                $sql .= " $k = :$k";
-                if ($i <= $len) {
-                    $sql .= ',';
+            
+            foreach($where as $k => $v) {
+                if(!isset($v)) {
+                    unset($where[$k]);
                 }
+            }
+            foreach($values as $k => $v) {
+                if(!isset($v)) {
+                    unset($values[$k]);
+                }
+            }
+
+            $i = 0;
+            $prev = null;
+            foreach($values as $k => $v) {
+                if(isset($v)) {
+                    if ($i > 0 && isset($prev)) {
+                        $sql .= ',';
+                    }
+                    $sql .= " $k = :$k";
+                }
+                $prev = $v;
                 $i++;
             }
 
-            $query = $this->PDO->prepare($sql);
+            if(!empty($where)) {
+                $sql .= ' WHERE 1 = 1';
+                foreach($where as $k => $v) {
+                    if(isset($v)) {
+                        $sql .= " AND $k = :$k";
+                    }
+                }
+            }
 
-            return $query->execute($params);
+            $query = $this->PDO->prepare($sql);
+            $query->execute($values);
 
         } else { return false; }
     }
 
-    public function delete($table, $params = [])
+    public function delete($table, $where = [])
     {
         $sql = "DELETE FROM $table";
 
-        if(!empty($params)) {
+        if(!empty($where)) {
             $sql .= ' WHERE 1=1 ';
-            foreach($params as $k => $v) {
+            foreach($where as $k => $v) {
                 $sql .= "AND $k = :$k";
             }
         }
 
         $query = $this->PDO->prepare($sql);
 
-        return $query->execute($params);        
+        return $query->execute($where);        
     }
 
     public function __destruct()

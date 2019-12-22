@@ -1,4 +1,4 @@
-<form id="form_secteur_structure">
+<form id="form_secteur_structure" method="POST">
     <div class="form-group">
     <label for="nom">Nom</label>
     <input type="text" class="form-control" id="nom" name="nom">

@@ -9,11 +9,10 @@ use App\Model\Structure;
 class Association extends Structure {
     
     private $NB_DONATEURS;
-    private $ESTASSO;
 
-    public function __construct($ID, $nom, $rue, $cp, $ville, $NB_DONATEURS)
+    public function __construct($ID = null, $NOM = '', $RUE = '', $CP = null, $VILLE = '', $NB_DONATEURS = null)
     {
-        parent::__construct($ID, $nom, $rue, $cp, $ville);
+        parent::__construct($ID, $NOM, $RUE, $CP, $VILLE);
         $this->NB_DONATEURS = $NB_DONATEURS;
         $this->ESTASSO = true;
     }

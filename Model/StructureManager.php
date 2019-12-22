@@ -62,7 +62,7 @@ class StructureManager extends Manager {
             'RUE'               => $structure->RUE,
             'CP'                => $structure->CP,
             'VILLE'             => $structure->VILLE,
-            'ESTASSO'           => $structure->ESTASSO,
+            'ESTASSO'           => $structure->ESTASSO == 'on' || $structure->ESTASSO == true  ? 1 : 0,
             'NB_DONATEURS'      => $structure->NB_DONATEURS,
             'NB_ACTIONNAIRES'   => $structure->NB_ACTIONNAIRES,
         ]);
@@ -80,10 +80,10 @@ class StructureManager extends Manager {
             'RUE'               => $structure->RUE,
             'CP'                => $structure->CP,
             'VILLE'             => $structure->VILLE,
-            'ESTASSO'           => $structure->ESTASSO,
+            'ESTASSO'           => $structure->ESTASSO == 'on' || $structure->ESTASSO == true  ? 1 : 0,
             'NB_DONATEURS'      => $structure->NB_DONATEURS,
             'NB_ACTIONNAIRES'   => $structure->NB_ACTIONNAIRES,
-        ]);
+        ], ['ID' => $structure->ID]);
 
         if($query === false){
             throw new Exception("Impossible d'effectuer une mise à jour sur l'enregistrement $secteur->ID");

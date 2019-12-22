@@ -10,8 +10,9 @@ class Structure {
     protected $CP;
     protected $VILLE;
     protected $SECTEURS;
+    protected $ESTASSO;
 
-    public function __construct(int $ID, string $NOM, string $RUE, string $CP, string $VILLE)
+    public function __construct(int $ID = null, string $NOM = '', string $RUE = '', string $CP = null, string $VILLE = '')
     {
         $this->ID = $ID;
         $this->NOM = $NOM;

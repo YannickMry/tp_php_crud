@@ -8,13 +8,29 @@ function app_path($path = '') {
     return str_replace('\\', '/', __DIR__ . '/' . $path);
 }
 
-function base_url($path = '') {
-    return config('config')['base_url'] . $path;
+function path($path, $params = []) {
+    $key = array_search($path, config('routes'));
+    if($key != false) {
+        if($params != []) {
+            $params_segments = '';
+            $key_segments = explode('/', $key);
+            for($i = 0; $i < count($key_segments); $i++) {
+                if(strstr($key_segments[$i], '{') != false) {
+                    $key_segments[$i] = str_replace('{', '', $key_segments[$i]);
+                    $key_segments[$i] = str_replace('}', '', $key_segments[$i]);
+                    $key_segments[$i] = $params[$key_segments[$i]];
+                }
+            }
+            $key = implode('/', $key_segments);
+        }
+        return base_url($key);
+    } else {
+        return '';
+    }
 }
 
-function value_input_type($name) {
-    if (isset($_POST["$name"])) echo htmlspecialchars($_POST["$name"]);
-    elseif (isset($_SESSION["$name"])) echo htmlspecialchars($_SESSION["$name"]);
+function base_url($path = '') {
+    return config('config')['base_url'] . $path;
 }
 
 function str_between($str,$from,$to) {
@@ -46,25 +62,31 @@ function config($param = '') {
  * Class casting
  *
  * @param string|object $destination
- * @param object $sourceObject
+ * @param object $source_object
  * @return object
  */
- function cast($destination, $sourceObject)
+ function cast($destination, $source_object)
  {
      if (is_string($destination)) {
          $destination = new $destination();
      }
-     $sourceReflection = new ReflectionObject($sourceObject);
-     $destinationReflection = new ReflectionObject($destination);
-     $sourceProperties = $sourceReflection->getProperties();
-     foreach ($sourceProperties as $sourceProperty) {
-         $sourceProperty->setAccessible(true);
-         $name = $sourceProperty->getName();
-         $value = $sourceProperty->getValue($sourceObject);
-         if ($destinationReflection->hasProperty($name)) {
-             $propDest = $destinationReflection->getProperty($name);
-             $propDest->setAccessible(true);
-             $propDest->setValue($destination,$value);
+
+     $source_reflection = new ReflectionObject($source_object);
+     $destination_reflection = new ReflectionObject($destination);
+     $source_properties = $source_reflection->getProperties();
+
+     foreach ($source_properties as $source_property) {
+
+         $source_property->setAccessible(true);
+         $name = $source_property->getName();
+         $value = $source_property->getValue($source_object);
+
+         if ($destination_reflection->hasProperty($name)) {
+
+             $prop_dest = $destination_reflection->getProperty($name);
+             $prop_dest->setAccessible(true);
+             $prop_dest->setValue($destination,$value);
+
          } else {
              $destination->$name = $value;
          }

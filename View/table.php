@@ -1,6 +1,6 @@
-<h1 class="mt-3">Liste <?= $entity ?></h1>
+<h2 class="mt-3">Liste <?= $entity ?></h2>
 
-<a href="" class="btn btn-primary mb-3">Ajouter</a>
+<a href="<?= path('main/create', ['entity' => $entity]) ?>" class="btn btn-primary mb-3">Ajouter</a>
 
 <table class="table mb-5" style="overflow-x: scroll;">
   <thead>
@@ -22,8 +22,8 @@
                 <?php endif; ?>
             <?php endforeach; ?>
             <td>
-              <a href="" class="btn btn-warning"><i class="fa fa-pencil-square-o"></i></a>
-              <a href="<?= base_url("supprimer/$entity/$r->ID") ?>" class="btn btn-danger"><i class="fa fa-trash"></i></a>
+              <a href="<?= path('main/update', ['entity' => $entity, 'id' => $r->ID]) ?>" class="btn btn-warning"><i class="fa fa-pencil-square-o"></i></a>
+              <a href="<?= path('main/delete', ['entity' => $entity, 'id' => $r->ID]) ?>" class="btn btn-danger"><i class="fa fa-trash"></i></a>
             </td>
         </tr>
         <?php endforeach; ?>

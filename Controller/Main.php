@@ -6,11 +6,17 @@ require(app_path('/Core/Controller.php'));
 require(app_path('/Model/SecteurManager.php'));
 require(app_path('/Model/StructureManager.php'));
 require(app_path('/Model/SecteursStructuresManager.php'));
+require_once(app_path('/Model/Secteur.php'));
+require_once(app_path('/Model/Structure.php'));
+require_once(app_path('/Model/SecteursStructures.php'));
  
 use App\Core\Controller;
 use App\Model\SecteurManager;
 use App\Model\StructureManager;
 use App\Model\SecteursStructuresManager;
+use App\Model\Secteur;
+use App\Model\Structure;
+use App\Model\SecteursStructures;
 
 class Main extends Controller {
     
@@ -45,18 +51,113 @@ class Main extends Controller {
         $this->load_view('footer');
     }
 
-    public function create() {
-        
+    public function create(string $entity) {
+
+        if(isset($_POST) && !empty($_POST)) {
+
+            $class = 'App\Model\\' . ucfirst($entity) . 'Manager';
+
+            if(class_exists($class)) {
+
+                $manager = new $class();
+
+                if(ucfirst($entity) == 'Structure') {
+                    if(isset($_POST['ESTASSO'])) {
+                        $entity = 'Association';
+                    } else {
+                        $entity = 'Entreprise';
+                    }
+                }
+
+                $entity = 'App\Model\\' . $entity;
+
+                $instance = new $entity();
+
+                foreach($_POST as $k => $v) {
+                    if($entity == 'App\Model\Structure' && $k == 'NB') {
+                        if($entity == 'App\Model\Association') {
+                            $instance->NB_DONATEURS = $v;
+                        } elseif($entity == 'App\Model\Entreprise') {
+                            $instance->NB_ACTIONNAIRES = $v;
+                        }
+                    } else {
+                        $instance->$k = $v;
+                    }
+                } 
+
+                $manager->insert($instance);
+                redirect();
+
+            } else {
+                echo "L'entité $entity n'existe pas dans le système";
+            }
+        } else {
+
+            $data['meta_title']         = 'Ajouter ' . ucfirst($entity);
+            $data['meta_description']   = 'Page pour la création de ' . ucfirst($entity); 
+
+            $this->load_view('header', $data);
+            $this->load_view('forms/' . ucfirst($entity));
+            $this->load_view('footer');
+        }
     }
 
     public function update(string $entity, int $id)
     {
-        //TODO : utiliser $_POST
-        $class = ucfirst($entity) . 'Manager';
-        if(class_exists($class)) {
-            var_dump(new $class());
+        if(isset($_POST) && !empty($_POST)) {
+
+            $class = 'App\Model\\' . ucfirst($entity) . 'Manager';
+
+            if(class_exists($class)) {
+
+                $manager = new $class();
+
+                $instance = $manager->getOne($id);
+
+                foreach($_POST as $k => $v) {
+                    if(ucfirst($entity) == 'Structure' && $k == 'NB') {
+                        if(isset($_POST['ESTASSO'])) {
+                            $instance->NB_DONATEURS = $v;
+                        } else {
+                            $instance->NB_ACTIONNAIRES = $v;
+                        }
+                    } else {
+                        $instance->$k = $v;
+                    }
+                } 
+
+                if(ucfirst($entity) == 'Structure' && !isset($_POST['ESTASSO'])) {
+                    $instance->ESTASSO = false;
+                }
+
+                $manager->update($instance);
+                redirect();
+
+            } else {
+                echo "L'entité $entity n'existe pas dans le système";
+            }
         } else {
-            echo "L'entité $entity n'existe pas dans le système";
+
+            
+            $class = 'App\Model\\' . ucfirst($entity) . 'Manager';
+
+            if(class_exists($class)) {
+
+                $manager = new $class();
+
+                $instance = $manager->getOne($id);
+
+                $data['meta_title']         = 'Modifier ' . ucfirst($entity);
+                $data['meta_description']   = 'Page pour la modificatione de ' . ucfirst($entity);
+                $data['form'] = $instance;
+
+                $this->load_view('header', $data);
+                $this->load_view('forms/' . ucfirst($entity), $data);
+                $this->load_view('footer');
+
+            } else {
+                echo "L'entité $entity n'existe pas dans le système";
+            }
         }
     }
 
